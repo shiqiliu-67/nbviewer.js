@@ -54,9 +54,6 @@
             margin: 1em auto 0 auto;
             text-align: center;
         }
-        div#download-buttons button + button {
-            margin-left: .5em;
-        }
         input#github-link {
             font-size: 1em;
             text-align: center;
@@ -85,7 +82,6 @@
 <div id='doc'>
     <select id='file-selector'></select>
     <div id='download-buttons'>
-        <button id='download-notebook'>Download this notebook in HTML</button>
         <button id='download-notebook-pdf'>Download this notebook in PDF</button>
     </div>
     <div id='instructions'>Drag and drop Jupyter notebooks anywhere here...<br />
@@ -107,7 +103,6 @@
     var d = document
     var doc = d.getElementById('doc')
     var downloadButtons = d.getElementById('download-buttons')
-    var dn = d.getElementById('download-notebook')
     var dnPdf = d.getElementById('download-notebook-pdf')
     if (!window.marked || !window.Prism || !window.katex) {
         throw new Error('expecting libraries marked.js, Prism.js and KaTeX to be present');
@@ -132,20 +127,6 @@
         var filename = path.substring(path.lastIndexOf('/') + 1) || 'notebook.ipynb'
         return filename.replace(/\.ipynb$/i, extension)
     }
-
-    dn.addEventListener('click', function() {
-        var notebook = visibleNotebook()
-        if (notebook === null) return
-
-        var link = d.createElement('a')
-        var content = encodeURIComponent(notebook.innerHTML)
-        link.setAttribute('href', 'data:text/html;charset=utf-8,' + content)
-        link.setAttribute('download', downloadFilename(notebook, '.html'))
-
-        d.body.appendChild(link)
-        link.click()
-        d.body.removeChild(link)
-    })
 
     dnPdf.addEventListener('click', async function() {
         var notebook = visibleNotebook()
