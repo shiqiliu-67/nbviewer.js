@@ -22,7 +22,7 @@ Clicking this while on Github, looking at a notebook, will launch our nbviewer w
 
 There are two ways one can use this. You can use the library itself, there is just a single public method, you call `nbv.render(data, target)`, where `data` is the JSON representation of your Jupyter notebook and `target` is the node where the notebook is to be rendered.
 
-Or you can use [the demo](https://kokes.github.io/nbviewer.js/viewer.html) (or a local copy), which is just a simple wrapper of the library, with dropzones and other basic features. A rendered notebook can be downloaded as PDF directly in the browser. There is no data being transferred anywhere, so feel free to bookmark it and use it.
+Or you can use [the demo](https://kokes.github.io/nbviewer.js/viewer.html) (or a local copy), which is just a simple wrapper of the library, with dropzones and other basic features. A rendered notebook can be printed or saved as a PDF using the browser's print dialog. There is no data being transferred anywhere, so feel free to bookmark it and use it.
 
 ### Tech details
 It's rather simple at this point, all the DOM manipulation is written in vanilla JavaScript, Markdown rendering goes through [marked.js](https://github.com/chjj/marked), syntax highlighting is administered by [Prism.js](http://prismjs.com/). The example implementation leverages a few goodies from modern web design, like File API or drag&drops, so a fairly modern browser is necessary.

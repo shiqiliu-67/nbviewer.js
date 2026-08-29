@@ -13,8 +13,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
     <script src='lib/nbv.js'></script>
 
 
@@ -74,6 +72,39 @@
             margin: 5em auto 0 auto;
             font-style: italic;
         }
+        @media print {
+            body {
+                background-color: white;
+            }
+            body > a,
+            select#file-selector,
+            div#download-buttons,
+            div#instructions,
+            div#serving-info,
+            div#contact,
+            div#dropzone {
+                display: none !important;
+            }
+            div.rendered-notebook > div {
+                max-width: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 0 0 7em !important;
+                box-shadow: none !important;
+            }
+            div.rendered-notebook > div > div,
+            pre,
+            img,
+            svg,
+            table,
+            tr {
+                break-inside: avoid;
+            }
+        }
+        @page {
+            size: A4;
+            margin: 10mm;
+        }
     </style>
 </head>
 <body>
@@ -82,7 +113,7 @@
 <div id='doc'>
     <select id='file-selector'></select>
     <div id='download-buttons'>
-        <button id='download-notebook-pdf'>Download this notebook in PDF</button>
+        <button id='download-notebook-pdf'>Print / Save this notebook as PDF</button>
     </div>
     <div id='instructions'>Drag and drop Jupyter notebooks anywhere here...<br />
     or paste a link from Github: <br />
@@ -103,7 +134,7 @@
     var d = document
     var doc = d.getElementById('doc')
     var downloadButtons = d.getElementById('download-buttons')
-    var dnPdf = d.getElementById('download-notebook-pdf')
+    var printButton = d.getElementById('download-notebook-pdf')
     if (!window.marked || !window.Prism || !window.katex) {
         throw new Error('expecting libraries marked.js, Prism.js and KaTeX to be present');
     }
@@ -121,44 +152,23 @@
         return null
     }
 
-    function downloadFilename(notebook, extension) {
+    function notebookTitle(notebook) {
         var source = notebook.getAttribute('rel') || 'notebook.ipynb'
         var path = source.split(/[?#]/)[0]
         var filename = path.substring(path.lastIndexOf('/') + 1) || 'notebook.ipynb'
-        return filename.replace(/\.ipynb$/i, extension)
+        return filename.replace(/\.ipynb$/i, '')
     }
 
-    dnPdf.addEventListener('click', async function() {
+    printButton.addEventListener('click', function() {
         var notebook = visibleNotebook()
         if (notebook === null) return
 
-        if (!window.html2pdf) {
-            window.alert('The PDF converter could not be loaded. Please check your internet connection and try again.')
-            return
-        }
-
-        var buttonLabel = dnPdf.textContent
-        dnPdf.disabled = true
-        dnPdf.textContent = 'Preparing PDF...'
-
+        var originalTitle = d.title
+        d.title = notebookTitle(notebook)
         try {
-            await window.html2pdf().set({
-                margin: 10,
-                filename: downloadFilename(notebook, '.pdf'),
-                image: {type: 'jpeg', quality: 0.98},
-                html2canvas: {scale: 2, useCORS: true, backgroundColor: '#ffffff'},
-                jsPDF: {unit: 'mm', format: 'a4', orientation: 'portrait'},
-                pagebreak: {
-                    mode: ['css', 'legacy'],
-                    avoid: ['.rendered-notebook > div > div', 'pre', 'img', 'svg', 'table', 'tr']
-                }
-            }).from(notebook).save()
-        } catch (error) {
-            console.error('Unable to generate PDF', error)
-            window.alert('Unable to generate the PDF. Please try again.')
+            window.print()
         } finally {
-            dnPdf.disabled = false
-            dnPdf.textContent = buttonLabel
+            d.title = originalTitle
         }
     })
 
